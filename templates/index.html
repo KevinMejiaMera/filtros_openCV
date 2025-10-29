@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Procesamiento de Imágenes con OpenCV</title>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #2980b9;
+      --light-color: #ecf0f1;
+      --dark-color: #34495e;
+      --success-color: #27ae60;
+      --danger-color: #e74c3c;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    header {
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    
+    h2 {
+      color: var(--dark-color);
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+    
+    h3 {
+      color: var(--dark-color);
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    
+    .main-content {
+      display: flex;
+      gap: 30px;
+    }
+    
+    /* Contenedor izquierdo */
+    .left-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 25px;
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark-color);
+    }
+    
+    input[type="file"], select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      margin-bottom: 15px;
+      transition: var(--transition);
+    }
+    
+    input[type="file"]:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    button {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+    
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+    
+    /* Imágenes Original y Procesada */
+    .image-results {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .image-row {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 25px;
+      width: 100%;
+    }
+    
+    .image-card {
+      text-align: center;
+      flex: 1;
+      max-width: 450px;
+    }
+    
+    .image-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background: #f8f9fa;
+      padding: 10px;
+      border: 1px solid #eee;
+    }
+    
+    .image-title {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      margin-bottom: -1px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .description {
+      background: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .description h3 {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--light-color);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    
+    /* Contenedor derecho: canales BGR */
+    .right-container {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .channel-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .channel-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      background: #f8f9fa;
+      padding: 5px;
+      border: 1px solid #eee;
+    }
+    
+    .blue-channel h3 {
+      color: #2980b9;
+    }
+    
+    .green-channel h3 {
+      color: #27ae60;
+    }
+    
+    .red-channel h3 {
+      color: #e74c3c;
+    }
+    
+    /* Cámara en vivo */
+    .cam-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .cam-container img {
+      max-width: 100%;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .cam-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .main-content {
+        flex-direction: column;
+      }
+      
+      .right-container {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      .channel-card {
+        flex: 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .image-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .image-card {
+        max-width: 100%;
+      }
+      
+      .right-container {
+        flex-direction: column;
+      }
+    }
+    
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Procesamiento de Imágenes con OpenCV</h1>
+      <p>Una herramienta profesional para aplicar filtros y procesar imágenes</p>
+    </header>
+    
+    <div class="main-content">
+      <!-- Contenedor izquierdo -->
+      <div class="left-container">
+        <!-- Subir imagen -->
+        <div class="card fade-in">
+          <h2>🖼️ Subir Imagen</h2>
+          <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="file-input">Selecciona una imagen:</label>
+              <input type="file" id="file-input" name="file" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="filter-select">Selecciona un filtro:</label>
+              <select id="filter-select" name="filtro">
+                <option value="">-- Selecciona un filtro --</option>
+                <optgroup label="Filtros espaciales">
+                  <option value="blur">Suavizado (Blur)</option>
+                  <option value="gaussiano">Filtro Gaussiano</option>
+                  <option value="mediana">Filtro Mediana</option>
+                  <option value="bilateral">Filtro Bilateral</option>
+                  <option value="canny">Detección de Bordes (Canny)</option>
+                  <option value="sobel">Filtro Sobel</option>
+                  <option value="laplaciano">Filtro Laplaciano</option>
+                </optgroup>
+                <optgroup label="Operadores morfológicos">
+                  <option value="erosion">Erosión</option>
+                  <option value="dilatacion">Dilatación</option>
+                  <option value="apertura">Apertura</option>
+                  <option value="cierre">Cierre</option>
+                  <option value="gradiente">Gradiente Morfológico</option>
+                </optgroup>
+              </select>
+            </div>
+            
+            <button type="submit">
+              <span>Aplicar filtro</span>
+            </button>
+          </form>
+        </div>
+
+        {% if original_image %}
+        <div class="image-results fade-in">
+          <h2>Resultados del Procesamiento</h2>
+          <div class="image-row">
+            <div class="image-card">
+              <div class="image-title">
+                <h3>Imagen Original</h3>
+              </div>
+              <img src="{{ original_image }}" alt="Imagen Original">
+            </div>
+            <div class="image-card">
+              <div class="image-title">
+                <h3>Filtro: {{ filtro|capitalize }}</h3>
+              </div>
+              <img src="{{ processed_image }}" alt="Imagen Procesada">
+            </div>
+          </div>
+          
+          <div class="description">
+            <h3>Descripción del Filtro Aplicado</h3>
+            <p>{{ descripcion }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Cámara en vivo -->
+        <div class="card fade-in">
+          <h2>📷 Cámara en Vivo</h2>
+          <form action="/iniciar_camara" method="POST">
+            <div class="form-group">
+            </div>
+            
+            <button type="submit">
+              <span>🎥 Abrir cámara</span>
+            </button>
+          </form>
+
+          {% if camara %}
+          <div class="cam-container">
+            <img src="{{ url_for('video_feed') }}" alt="Video en vivo con filtro">
+            <div class="cam-controls">
+              <form action="/aplicar_filtro_camara" method="POST">
+                <select name="filtro">
+                  <option value="">-- Sin filtro --</option>
+                  <option value="gaussiano">Filtro Gaussiano</option>
+                  <option value="mediana">Filtro Mediana</option>
+                  <option value="canny">Canny</option>
+                  <option value="sobel">Sobel</option>
+                  <option value="laplaciano">Laplaciano</option>
+                </select>
+                <button type="submit">Aplicar filtro</button>
+              </form>
+              <form action="/detener_camara" method="POST">
+                <button type="submit" class="btn-danger">
+                  <span>🛑 Detener cámara</span>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Contenedor derecho: BGR -->
+      {% if original_image %}
+      <div class="right-container fade-in">
+        <h2>Canales de Color (BGR)</h2>
+        <div class="channel-card blue-channel">
+          <h3>Canal Azul (B)</h3>
+          <img src="{{ blue_image }}" alt="Canal Azul">
+        </div>
+        <div class="channel-card green-channel">
+          <h3>Canal Verde (G)</h3>
+          <img src="{{ green_image }}" alt="Canal Verde">
+        </div>
+        <div class="channel-card red-channel">
+          <h3>Canal Rojo (R)</h3>
+          <img src="{{ red_image }}" alt="Canal Rojo">
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    // Agregar animación a los elementos al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+      const elements = document.querySelectorAll('.fade-in');
+      elements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+      });
+    });
+  </script>
+</body>
+</html>
