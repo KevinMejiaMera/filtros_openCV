@@ -3,3 +3,10 @@ from .hough import *
 from .smoothing import *
 from .morphology import *
 from .segmentation import *
+from .enhancement import *
+from .frequency import *
+from .color import *
+from .geometric import *
+from .advanced_segmentation import *
+from .gimp import *
+from .extended import *

@@ -1,0 +1,202 @@
+<style>
+    .filter-section {
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-section label {
+        display: block;
+        color: var(--primary);
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-section select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .filter-section select:focus {
+        border-color: var(--accent);
+        outline: none;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Dark background for the dropdown options */
+    .filter-section select option {
+        background-color: #0f172a;
+        /* Very dark blue/black */
+        color: #f1f5f9;
+        /* White/Light gray text */
+        padding: 10px;
+    }
+</style>
+
+<!-- Hidden input that actually carries the value to the backend -->
+<input type="hidden" name="filtro" class="real-filtro-input">
+
+<!-- 1. SPATIAL -->
+<div class="filter-section">
+    <label><i class="fas fa-layer-group"></i> I. Espaciales & Bordes</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Filtro --</option>
+        <option value="blur">Blur (Suavizado Simple)</option>
+        <option value="gaussiano">Gaussiano</option>
+        <option value="mediana">Mediana</option>
+        <option value="bilateral">Bilateral</option>
+        <option value="sharpen">Sharpen (Enfoque)</option>
+        <option value="high_pass">High Pass</option>
+        <option value="unsharp">Unsharp Mask</option>
+        <option value="sobel">Sobel</option>
+        <option value="canny">Canny</option>
+        <option value="laplaciano">Laplaciano</option>
+        <option value="log">LoG (Laplacian of Gaussian)</option>
+        <option value="prewitt">Prewitt</option>
+        <option value="roberts">Roberts</option>
+        <option value="emboss">Emboss (Relieve)</option>
+        <option value="erosion">Erosión</option>
+        <option value="dilatacion">Dilatación</option>
+        <option value="apertura">Apertura</option>
+        <option value="cierre">Cierre</option>
+        <option value="gradiente">Gradiente Morfológico</option>
+    </select>
+</div>
+
+<!-- 2. SEGMENTATION -->
+<div class="filter-section">
+    <label><i class="fas fa-shapes"></i> II. Segmentación & Hough</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Filtro --</option>
+        <option value="threshold">Umbral Simple</option>
+        <option value="adaptive">Umbral Adaptativo</option>
+        <option value="otsu">Otsu</option>
+        <option value="kmeans">K-Means Clustering</option>
+        <option value="hough">Hough Líneas Probabilístico</option>
+        <option value="hough_standard">Hough Líneas Estándar</option>
+        <option value="hough_circles">Hough Círculos</option>
+    </select>
+</div>
+
+<!-- 3. COLOR & CHANNELS -->
+<div class="filter-section">
+    <label><i class="fas fa-palette"></i> III. Color, Canales & Mapas</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Filtro --</option>
+        <option value="gray">Escala de Grises</option>
+        <option value="hsv">Espacio HSV</option>
+        <option value="equalize">Ecualizar Histograma</option>
+        <option value="bright_contrast">Brillo/Contraste Auto</option>
+        <option value="pseudocolor">Pseudocolor Jet</option>
+        <option value="col_red">Solo Canal Rojo</option>
+        <option value="col_green">Solo Canal Verde</option>
+        <option value="col_blue">Solo Canal Azul</option>
+        <option value="col_hue">Solo Matiz (Hue)</option>
+        <option value="col_sat">Solo Saturación</option>
+        <option value="col_val">Solo Valor (Luz)</option>
+        <option value="col_swap_rb">Intercambiar Rojo/Azul</option>
+        <optgroup label="Mapas de Color">
+            <option value="col_map_ocean">Mapa Océano</option>
+            <option value="col_map_bone">Mapa Hueso</option>
+            <option value="col_map_spring">Mapa Primavera</option>
+            <option value="col_map_summer">Mapa Verano</option>
+            <option value="col_map_autumn">Mapa Otoño</option>
+            <option value="col_map_winter">Mapa Invierno</option>
+            <option value="col_map_rainbow">Mapa Arcoiris</option>
+        </optgroup>
+    </select>
+</div>
+
+<!-- 4. GEOMETRIC -->
+<div class="filter-section">
+    <label><i class="fas fa-sync-alt"></i> IV. Geometría & Transformación</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Filtro --</option>
+        <option value="rot_90">Rotar 90° Reloj</option>
+        <option value="rot_180">Rotar 180°</option>
+        <option value="flip_h">Volteo Horizontal</option>
+        <option value="flip_v">Volteo Vertical</option>
+        <option value="geo_scale_up">Escalar Zoom 1.5x</option>
+        <option value="geo_scale_down">Escalar Alejar 0.5x</option>
+        <option value="geo_shear_x">Cizalla X (Shear)</option>
+        <option value="geo_shear_y">Cizalla Y (Shear)</option>
+        <option value="geo_crop_169">Recorte Cine 16:9</option>
+    </select>
+</div>
+
+<!-- 5. EDITOR GIMP -->
+<div class="filter-section">
+    <label><i class="fas fa-sliders-h"></i> V. Editor Pro (Estilo GIMP)</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Efecto --</option>
+        <optgroup label="Ajustes Básicos">
+            <option value="g_bright">Brillo +30</option>
+            <option value="g_bright_minus">Brillo -30</option>
+            <option value="g_contrast">Contraste +</option>
+            <option value="g_gamma">Gamma</option>
+            <option value="g_invert">Invertir Colores</option>
+        </optgroup>
+        <optgroup label="Artísticos">
+            <option value="g_sepia">Sepia</option>
+            <option value="g_sketch">Sketch Lápiz</option>
+            <option value="g_oil">Pintura Oleo</option>
+            <option value="g_water">Acuarela</option>
+            <option value="g_pixel">Pixel Art</option>
+            <option value="g_glitch">Glitch RGB</option>
+        </optgroup>
+        <optgroup label="Distorsión">
+            <option value="g_wave">Onda</option>
+            <option value="g_mirror">Espejo</option>
+            <option value="g_vignette">Viñeta Negra</option>
+            <option value="art_vignette_white">Viñeta Blanca</option>
+            <option value="art_glass">Efecto Vidrio</option>
+            <option value="art_ripple">Ondulación Agua</option>
+        </optgroup>
+    </select>
+</div>
+
+<!-- 6. EXTENDED FX -->
+<div class="filter-section">
+    <label><i class="fas fa-magic"></i> VI. Efectos Especiales & Ruido</label>
+    <select onchange="updateRealFilter(this)">
+        <option value="" disabled selected>-- Seleccionar Efecto --</option>
+        <option value="noise_salt">Agregar Ruido Sal</option>
+        <option value="noise_pepper">Agregar Ruido Pimienta</option>
+        <option value="denoise_fast">Eliminar Ruido (AI Fast)</option>
+        <option value="morph_tophat">Top Hat (Detalles Claros)</option>
+        <option value="morph_blackhat">Black Hat (Detalles Oscuros)</option>
+        <option value="art_emboss_90">Emboss 90°</option>
+    </select>
+</div>
+
+<script>
+    function updateRealFilter(selectEl) {
+        // Find the specific container for this instance of the included template
+        // We look for the parent form or a specific wrapper class
+        const container = selectEl.closest('form') || selectEl.closest('#cameraFilterContainer') || selectEl.closest('.modal-content') || document;
+
+        // Find the hidden input specifically within this container
+        const hiddenInput = container.querySelector('input[name="filtro"].real-filtro-input');
+        if (hiddenInput) {
+            hiddenInput.value = selectEl.value;
+        }
+
+        // Reset ALL OTHER selects specifically in this container
+        // We target all selects within the document to ensure all filter sections are reset
+        document.querySelectorAll('.filter-section select').forEach(s => {
+            if (s !== selectEl) {
+                s.selectedIndex = 0;
+            }
+        });
+    }
+</script>
