@@ -6,15 +6,13 @@ from datetime import datetime
 import time
 
 # Importar filtros desde el paquete
-from filters import (
-    # Existing
+from filtros import (
     aplicar_blur, aplicar_gaussiano, aplicar_mediana, aplicar_bilateral,
     aplicar_canny, aplicar_sobel, aplicar_laplaciano, aplicar_prewitt, aplicar_roberts,
     aplicar_scharr, aplicar_log,
     aplicar_hough_lineas_probabilistico, aplicar_hough_lineas_busqueda, aplicar_hough_circulos,
     aplicar_erosion, aplicar_dilatacion, aplicar_apertura, aplicar_cierre, aplicar_gradiente,
     aplicar_umbral_simple, aplicar_umbral_adaptativo, aplicar_otsu,
-    # NEW
     aplicar_sharpen, aplicar_high_pass, aplicar_emboss, aplicar_unsharp_mask,
     aplicar_dft_magnitude,
     aplicar_escala_grises, aplicar_hsv, aplicar_ecualizacion_hist, aplicar_brillo_contraste, aplicar_pseudocolor,
@@ -23,17 +21,17 @@ from filters import (
     GIMP_FILTERS, EXT_FILTERS
 )
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/processed'
+aplicacion = Flask(__name__)
+aplicacion.config['CARPETA_SUBIDAS'] = 'static/processed'
 
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+if not os.path.exists(aplicacion.config['CARPETA_SUBIDAS']):
+    os.makedirs(aplicacion.config['CARPETA_SUBIDAS'])
 
 filtro_actual = None
-camera_active = False
+camara_activa = False
 
 # ========= FUNCIÓN PRINCIPAL DE DESPACHO =========
-def aplicar_filtro(img, filtro):
+def aplicar_filtro_logica(img, filtro):
     # I.1 Suavizado
     if filtro == 'blur': return aplicar_blur(img)
     elif filtro == 'gaussiano': return aplicar_gaussiano(img)
@@ -43,7 +41,7 @@ def aplicar_filtro(img, filtro):
     # I.2 Realce (Enhancement)
     elif filtro == 'sharpen': return aplicar_sharpen(img)
     elif filtro == 'high_pass': return aplicar_high_pass(img)
-    elif filtro == 'high_boost': return aplicar_sharpen(img) # Using sharpen as simple placeholder or combine
+    elif filtro == 'high_boost': return aplicar_sharpen(img) 
     elif filtro == 'unsharp': return aplicar_unsharp_mask(img)
     
     # I.3 Detección de Bordes (Edges)
@@ -92,7 +90,7 @@ def aplicar_filtro(img, filtro):
     elif filtro == 'hough_standard': return aplicar_hough_lineas_busqueda(img)
     elif filtro == 'hough_circles': return aplicar_hough_circulos(img)
     
-    # GIMP Editor Filters (Legacy)
+    # GIMP Editor Filters (Legacy/Mapped)
     elif filtro in GIMP_FILTERS:
         return GIMP_FILTERS[filtro](img)
     
@@ -103,25 +101,20 @@ def aplicar_filtro(img, filtro):
     else:
         return img
 
-def descripcion_filtro(filtro):
-    # Check GIMP first for generic description
+def obtener_descripcion(filtro):
     if filtro.startswith('g_'):
         return "Efecto de Edición GIMP / Ajuste Visual Avanzado."
     if filtro in EXT_FILTERS:
         return "Filtro Extendido / Efecto Especial."
 
     descripciones = {
-        # ... (Existing)
-        # I.1 Suavizado
         "blur": "Suaviza promediando píxeles vecinos.",
         "gaussiano": "Suaviza con distribución gaussiana (reduce ruido Gaussiano).",
         "mediana": "Elimina ruido 'sal y pimienta' conservando bordes.",
         "bilateral": "Suaviza preservando bordes (piel suave).",
-        # I.2 Realce
         "sharpen": "Aumenta la nitidez de la imagen.",
         "high_pass": "Paso Alto: Enfatiza bordes y detalles finos.",
         "unsharp": "Máscara de Enfoque: Realce mediante sustracción de borrosidad.",
-        # I.3 Bordes
         "canny": "Detección de bordes multi-etapa (Canny).",
         "sobel": "Detección de bordes (Derivadas de Sobel).",
         "scharr": "Operador Scharr (Sobel optimizado).",
@@ -129,33 +122,26 @@ def descripcion_filtro(filtro):
         "log": "Laplaciano del Gaussiano (LoG).",
         "prewitt": "Similar a Sobel con máscaras diferentes.",
         "roberts": "Operador de Roberts (gradiente simple).",
-        # I.4 Convolución
         "emboss": "Crea efecto tridimensional de relieve.",
-        # I.5 Morfológicos
         "erosion": "Reduce regiones brillantes (erosiona).",
         "dilatacion": "Expande regiones brillantes (dilata).",
         "apertura": "Erosión seguida de dilatación (elimina puntos blancos).",
         "cierre": "Dilatación seguida de erosión (cierra huecos negros).",
         "gradiente": "Detección de bordes morfológicos.",
-        # II. Transformadas
         "dft": "Espectro de Magnitud de Fourier (Frecuencias).",
-        # III. Color
         "gray": "Conversión a Escala de Grises (Luminosidad).",
         "hsv": "Espacio de Color Tono-Saturación-Valor.",
         "equalize": "Ecualización de Histograma (Mejora contraste global).",
         "bright_contrast": "Ajuste lineal de Brillo (+30) y Contraste (1.2x).",
         "pseudocolor": "Mapa de color JET aplicado a escala de grises.",
-        # IV. Geometricas
         "rot_90": "Rotación 90° sentido horario.",
         "rot_180": "Rotación 180°.",
         "flip_h": "Volteo Horizontal (Espejo).",
         "flip_v": "Volteo Vertical.",
-        # V. Segmentacion
         "threshold": "Umbral Simple (Binario).",
         "adaptive": "Umbral Adaptativo (Variable localmente).",
         "otsu": "Umbral de Otsu (Automático).",
         "kmeans": "Segmentación por Clustering (K-means, K=8).",
-        # Hough
         "hough": "Líneas Probabilísticas.",
         "hough_standard": "Líneas Estándar (Infinitas).",
         "hough_circles": "Detección de Círculos.",
@@ -163,150 +149,132 @@ def descripcion_filtro(filtro):
     return descripciones.get(filtro, "Filtro aplicado correctamente.")
 
 # ========= RUTAS =========
-@app.route('/', methods=['GET'])
+@aplicacion.route('/', methods=['GET'])
 def index():
-    # Root static/img images
-    img_folder = os.path.join('static', 'img')
-    local_images = []
-    if os.path.exists(img_folder):
-        local_images = [f for f in os.listdir(img_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg')) and os.path.isfile(os.path.join(img_folder, f))]
+    carpeta_img = os.path.join('static', 'img')
+    imagenes_locales = []
+    if os.path.exists(carpeta_img):
+        imagenes_locales = [f for f in os.listdir(carpeta_img) if f.lower().endswith(('.png', '.jpg', '.jpeg')) and os.path.isfile(os.path.join(carpeta_img, f))]
         
-    # Finca images
-    finca_folder = os.path.join('static', 'img', 'finca')
-    finca_images = []
-    if os.path.exists(finca_folder):
-        finca_images = [f for f in os.listdir(finca_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        # Sort numerically if possible (imagen1, imagen2...)
+    carpeta_finca = os.path.join('static', 'img', 'finca')
+    imagenes_finca = []
+    if os.path.exists(carpeta_finca):
+        imagenes_finca = [f for f in os.listdir(carpeta_finca) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         try:
-            finca_images.sort(key=lambda x: int(''.join(filter(str.isdigit, x))) if any(c.isdigit() for c in x) else x)
+            imagenes_finca.sort(key=lambda x: int(''.join(filter(str.isdigit, x))) if any(c.isdigit() for c in x) else x)
         except:
             pass
             
-    return render_template('index.html', local_images=local_images, finca_images=finca_images, original_image=None)
+    return render_template('index.html', imagenes_locales=imagenes_locales, imagenes_finca=imagenes_finca, imagen_original=None)
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    file = request.files['file']
+@aplicacion.route('/subir', methods=['POST'])
+def subir():
+    archivo = request.files['file']
     filtro = request.form.get('filtro')
-    if not file:
+    if not archivo:
         return jsonify({'error': 'No file uploaded'})
 
-    filename = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + file.filename
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
+    nombre_archivo = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + archivo.filename
+    ruta_archivo = os.path.join(aplicacion.config['CARPETA_SUBIDAS'], nombre_archivo)
+    archivo.save(ruta_archivo)
 
-    return procesar_imagen_api(filepath, filename, filtro)
+    return procesar_imagen_api(ruta_archivo, nombre_archivo, filtro)
 
-@app.route('/process_local_api', methods=['POST'])
-def process_local_api():
-    image_name = request.form.get('image_name')
+@aplicacion.route('/api_procesamiento_local', methods=['POST'])
+def api_procesamiento_local():
+    nombre_imagen = request.form.get('image_name')
     filtro = request.form.get('filtro')
-    origin = request.form.get('origin') # 'finca' or 'root'
+    origen = request.form.get('origin')
     
-    # Explicit searching based on origin
-    if origin == 'finca':
-        original_path = os.path.join(app.root_path, 'static', 'img', 'finca', image_name)
-    elif origin == 'processed':
-        original_path = os.path.join(app.root_path, 'static', 'processed', image_name)
-    elif origin == 'web_upload':
-        original_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
+    if origen == 'finca':
+        ruta_original = os.path.join(aplicacion.root_path, 'static', 'img', 'finca', nombre_imagen)
+    elif origen == 'processed':
+        ruta_original = os.path.join(aplicacion.root_path, 'static', 'processed', nombre_imagen)
+    elif origen == 'web_upload':
+        ruta_original = os.path.join(aplicacion.config['CARPETA_SUBIDAS'], nombre_imagen)
     else:
-        original_path = os.path.join(app.root_path, 'static', 'img', image_name)
+        ruta_original = os.path.join(aplicacion.root_path, 'static', 'img', nombre_imagen)
     
-    if not os.path.exists(original_path):
-        return jsonify({'error': f'Image not found: {original_path}'}), 404
+    if not os.path.exists(ruta_original):
+        return jsonify({'error': f'Image not found: {ruta_original}'}), 404
 
-    filename = "local_" + datetime.now().strftime("%Y%m%d%H%M%S") + "_" + image_name
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    nombre_archivo = "local_" + datetime.now().strftime("%Y%m%d%H%M%S") + "_" + nombre_imagen
+    ruta_archivo = os.path.join(aplicacion.config['CARPETA_SUBIDAS'], nombre_archivo)
     
-    img = cv2.imread(original_path)
+    img = cv2.imread(ruta_original)
     if img is None:
         return jsonify({'error': 'Failed to read image'}), 500
         
-    cv2.imwrite(filepath, img)
+    cv2.imwrite(ruta_archivo, img)
     
-    return procesar_imagen_api(filepath, filename, filtro)
+    return procesar_imagen_api(ruta_archivo, nombre_archivo, filtro)
 
-def procesar_imagen_api(filepath, filename, filtro):
-    img = cv2.imread(filepath)
-    processed = aplicar_filtro(img, filtro)
+def procesar_imagen_api(ruta_archivo, nombre_archivo, filtro):
+    img = cv2.imread(ruta_archivo)
+    procesada = aplicar_filtro_logica(img, filtro)
 
-    # Convertir a BGR si el resultado es escala de grises para mostrar canales
-    if len(processed.shape) == 2:
-        processed_color = cv2.cvtColor(processed, cv2.COLOR_GRAY2BGR)
+    if len(procesada.shape) == 2:
+        procesada_color = cv2.cvtColor(procesada, cv2.COLOR_GRAY2BGR)
     else:
-        processed_color = processed
+        procesada_color = procesada
 
-    # Canales BGR de la Original (Normally processed, but let's show breakdown of result or refined original? User asked for Blue, Green, Red of... typically the ORIGINAL or RESULT? Usually Original to show components, but let's do Processed to show effect on channels? Let's stick to simple logic: breakdown the OUTPUT or INPUT. Code previously broke down INPUT. Let's break down PROCESSED for "Analysis")
-    # Actually, previous code broke down 'img' which was loaded from file. Let's break down the PROCESSED image to show filter effect on channels if desired, OR keep original. I will stick to breaking down the RESULT for "Analysis".
-    b, g, r = cv2.split(processed_color)
+    b, g, r = cv2.split(procesada_color)
     
-    # Save channels
-    cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], "blue_" + filename), cv2.merge([b,np.zeros_like(b),np.zeros_like(b)]))
-    cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], "green_" + filename), cv2.merge([np.zeros_like(g),g,np.zeros_like(g)]))
-    cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], "red_" + filename), cv2.merge([np.zeros_like(r),np.zeros_like(r),r]))
+    cv2.imwrite(os.path.join(aplicacion.config['CARPETA_SUBIDAS'], "blue_" + nombre_archivo), cv2.merge([b,np.zeros_like(b),np.zeros_like(b)]))
+    cv2.imwrite(os.path.join(aplicacion.config['CARPETA_SUBIDAS'], "green_" + nombre_archivo), cv2.merge([np.zeros_like(g),g,np.zeros_like(g)]))
+    cv2.imwrite(os.path.join(aplicacion.config['CARPETA_SUBIDAS'], "red_" + nombre_archivo), cv2.merge([np.zeros_like(r),np.zeros_like(r),r]))
 
-    processed_path = os.path.join(app.config['UPLOAD_FOLDER'], "proc_" + filename)
-    cv2.imwrite(processed_path, processed_color)
+    ruta_procesada = os.path.join(aplicacion.config['CARPETA_SUBIDAS'], "proc_" + nombre_archivo)
+    cv2.imwrite(ruta_procesada, procesada_color)
     
-    # Save the original temp copy as well to be consistent with 'original_url' expectation
-    # Ideally original_url points to the input file 'filepath'.
-    # For 'process_local_api', 'filepath' is already in 'static/processed'.
-    # We just need to make sure we serve it correctly.
-    
-    # NOTE: filename here is "local_timestamp_original.jpg".
-    # processed filename is "proc_local_timestamp_original.jpg".
-
-    # Return JSON
     return jsonify({
-        'original_url': url_for('static', filename='processed/' + filename),
-        'processed_url': url_for('static', filename='processed/proc_' + filename),
-        'blue_url': url_for('static', filename='processed/blue_' + filename),
-        'green_url': url_for('static', filename='processed/green_' + filename),
-        'red_url': url_for('static', filename='processed/red_' + filename),
-        'description': descripcion_filtro(filtro),
+        'url_original': url_for('static', filename='processed/' + nombre_archivo),
+        'url_procesada': url_for('static', filename='processed/proc_' + nombre_archivo),
+        'url_azul': url_for('static', filename='processed/blue_' + nombre_archivo),
+        'url_verde': url_for('static', filename='processed/green_' + nombre_archivo),
+        'url_roja': url_for('static', filename='processed/red_' + nombre_archivo),
+        'descripcion': obtener_descripcion(filtro),
         'filtro': filtro,
-        'result_filename': "proc_" + filename # The filename of the result, relative to 'static/processed'
+        'nombre_archivo_resultado': "proc_" + nombre_archivo
     })
 
 # ========= CÁMARA =========
-def gen_frames():
-    camera = cv2.VideoCapture(0)
-    # Warmup
+def generar_cuadros():
+    camara = cv2.VideoCapture(0)
     time.sleep(0.5)
-    while camera_active:
-        success, frame = camera.read()
+    while camara_activa:
+        success, frame = camara.read()
         if not success:
             break
         if filtro_actual:
-            frame = aplicar_filtro(frame, filtro_actual)
+            frame = aplicar_filtro_logica(frame, filtro_actual)
         _, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    camera.release()
+    camara.release()
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@aplicacion.route('/video_en_vivo')
+def video_en_vivo():
+    return Response(generar_cuadros(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/api_camera_control', methods=['POST'])
-def api_camera_control():
-    global camera_active, filtro_actual
-    action = request.json.get('action')
-    val = request.json.get('value')
+@aplicacion.route('/api_control_camara', methods=['POST'])
+def api_control_camara():
+    global camara_activa, filtro_actual
+    accion = request.json.get('action')
+    valor = request.json.get('value')
     
-    if action == 'start':
-        camera_active = True
+    if accion == 'start':
+        camara_activa = True
         return jsonify({'status': 'started', 'message': 'Cámara iniciada'})
-    elif action == 'stop':
-        camera_active = False
+    elif accion == 'stop':
+        camara_activa = False
         return jsonify({'status': 'stopped', 'message': 'Cámara detenida'})
-    elif action == 'filter':
-        filtro_actual = val
-        return jsonify({'status': 'updated', 'message': f'Filtro {val} aplicado'})
+    elif accion == 'filter':
+        filtro_actual = valor
+        return jsonify({'status': 'updated', 'message': f'Filtro {valor} aplicado'})
     
     return jsonify({'error': 'Invalid action'}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    aplicacion.run(debug=True)

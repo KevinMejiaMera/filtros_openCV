@@ -584,9 +584,9 @@
     <!-- SECTION: FINCA -->
     <div id="finca" class="section-view">
       <h2 class="page-title">Galería de Finca</h2>
-      {% if finca_images %}
+      {% if imagenes_finca %}
       <div class="image-grid">
-        {% for image in finca_images %}
+        {% for image in imagenes_finca %}
         <div class="grid-item" onclick="openModal('{{ image }}', 'finca')">
           <img src="{{ url_for('static', filename='img/finca/' + image) }}" loading="lazy">
           <div class="grid-item-label">{{ image }}</div>
@@ -601,9 +601,9 @@
     <!-- SECTION: DRONE (Local) -->
     <div id="drone" class="section-view">
       <h2 class="page-title">Imágenes Drone / Local</h2>
-      {% if local_images %}
+      {% if imagenes_locales %}
       <div class="image-grid">
-        {% for image in local_images %}
+        {% for image in imagenes_locales %}
         <div class="grid-item" onclick="openModal('{{ image }}', 'root')">
           <img src="{{ url_for('static', filename='img/' + image) }}" loading="lazy">
           <div class="grid-item-label">{{ image }}</div>
@@ -653,15 +653,15 @@
           1. Selecciona Imagen Base</h3>
         <div class="image-grid"
           style="max-height: 200px; overflow-y: auto; margin-bottom: 30px; border: 1px solid var(--glass-border); padding: 10px; border-radius: 12px;">
-          {% if local_images %}
-          {% for image in local_images %}
+          {% if imagenes_locales %}
+          {% for image in imagenes_locales %}
           <div class="grid-item" onclick="openGimpEditor('{{ image }}', 'root')">
             <img src="{{ url_for('static', filename='img/' + image) }}" loading="lazy">
           </div>
           {% endfor %}
           {% endif %}
-          {% if finca_images %}
-          {% for image in finca_images %}
+          {% if imagenes_finca %}
+          {% for image in imagenes_finca %}
           <div class="grid-item" onclick="openGimpEditor('{{ image }}', 'finca')">
             <img src="{{ url_for('static', filename='img/finca/' + image) }}" loading="lazy">
           </div>
@@ -961,7 +961,7 @@
       formData.append('origin', gimpCurrentOrigin);
       formData.append('filtro', filterCode);
 
-      fetch('/process_local_api', {
+      fetch('/api_procesamiento_local', {
         method: 'POST',
         body: formData
       })
@@ -973,12 +973,12 @@
             return;
           }
           // Update the display with the NEW processed image
-          const uniqueUrl = data.processed_url + '?t=' + new Date().getTime(); // Prevent caching
+          const uniqueUrl = data.url_procesada + '?t=' + new Date().getTime(); // Prevent caching
           document.getElementById('gimpEditorImage').src = uniqueUrl;
 
           // CRITICAL: Update state to chain effects
-          if (data.result_filename) {
-            gimpCurrentFile = data.result_filename;
+          if (data.nombre_archivo_resultado) {
+            gimpCurrentFile = data.nombre_archivo_resultado;
             gimpCurrentOrigin = 'processed'; // Next op reads from processed folder
           }
         })
@@ -1032,7 +1032,7 @@
 
       loader.style.display = 'block';
 
-      fetch('/process_local_api', {
+      fetch('/api_procesamiento_local', {
         method: 'POST',
         body: formData
       })
@@ -1055,12 +1055,12 @@
       document.getElementById('modalInputView').style.display = 'none';
       document.getElementById('modalResultView').style.display = 'flex';
 
-      document.getElementById('resOrig').src = data.original_url;
-      document.getElementById('resProc').src = data.processed_url;
-      document.getElementById('resBlue').src = data.blue_url;
-      document.getElementById('resGreen').src = data.green_url;
-      document.getElementById('resRed').src = data.red_url;
-      document.getElementById('resDesc').innerText = data.description;
+      document.getElementById('resOrig').src = data.url_original;
+      document.getElementById('resProc').src = data.url_procesada;
+      document.getElementById('resBlue').src = data.url_azul;
+      document.getElementById('resGreen').src = data.url_verde;
+      document.getElementById('resRed').src = data.url_roja;
+      document.getElementById('resDesc').innerText = data.descripcion;
       document.getElementById('resFilterName').innerText = data.filtro;
     }
 
@@ -1077,7 +1077,7 @@
 
       loader.style.display = 'block';
 
-      fetch('/upload', {
+      fetch('/subir', {
         method: 'POST',
         body: formData
       })
@@ -1104,14 +1104,14 @@
         document.getElementById('camStartBtn').style.display = 'none';
         document.getElementById('camControls').style.display = 'flex';
         document.getElementById('camLoader').style.display = 'block';
-        document.getElementById('camFeed').src = "{{ url_for('video_feed') }}";
+        document.getElementById('camFeed').src = "{{ url_for('video_en_vivo') }}";
       } else {
         document.getElementById('camStartBtn').style.display = 'block';
         document.getElementById('camControls').style.display = 'none';
         document.getElementById('camFeed').src = "";
       }
 
-      fetch('/api_camera_control', {
+      fetch('/api_control_camara', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: action })
@@ -1140,7 +1140,7 @@
 
       loader.style.display = 'block';
 
-      fetch('/api_camera_control', {
+      fetch('/api_control_camara', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'filter', value: filter })

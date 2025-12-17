@@ -1,0 +1,65 @@
+================================================================================
+GUÍA DE ESTUDIO Y DEFENSA DEL PROYECTO: "OPENCV STUDIO PRO"
+================================================================================
+
+1. RESUMEN EJECUTIVO (PITCH)
+--------------------------------------------------------------------------------
+Este proyecto es una aplicación web integral para el Procesamiento Digital de Imágenes y Visión Artificial. 
+Su propósito es democratizar el uso de algoritmos matemáticos complejos (como transformadas y segmentación) 
+a través de una interfaz gráfica amigable, permitiendo a usuarios (como agrónomos o fotógrafos) analizar 
+imágenes sin escribir código.
+
+2. STACK TECNOLÓGICO (HERRAMIENTAS UTILIZADAS)
+--------------------------------------------------------------------------------
+*   **Lenguaje Principal**: Python 3.x (Elegido por ser el estándar en ciencia de datos).
+*   **Motor de Procesamiento**: OpenCV (Open Source Computer Vision Library) y NumPy (Manejo de matrices matemáticas).
+*   **Servidor Web (Backend)**: Flask. Es un "micro-framework" ligero. A diferencia de Django, Flask te da lo mínimo necesario, permitiendo total flexibilidad para integrar librerías científicas.
+*   **Interfaz (Frontend)**: HTML5, CSS3 modernos (Diseño "Glassmorphism") y JavaScript Vanilla.
+*   **Comunicación**: AJAX / Fetch API (Para enviar y recibir imágenes sin recargar la página blanca).
+
+3. ARQUITECTURA DEL SISTEMA (¿CÓMO FUNCIONA POR DENTRO?)
+--------------------------------------------------------------------------------
+El sistema funciona bajo el modelo Cliente-Servidor:
+
+1.  **El Cliente (Navegador)**: El usuario selecciona una imagen y un filtro (ej. "Canny"). JavaScript captura este evento y envía una petición POST al servidor.
+2.  **El Enrutador (Flask)**: El archivo `aplicacion.py` recibe la petición en la ruta `/api_procesamiento_local`.
+3.  **El Despachador**: Una función central llamada `aplicar_filtro_logica` actúa como un "switch", derivando la imagen al módulo correcto dentro de la carpeta `filtros/`.
+4.  **El Procesamiento (OpenCV)**: La imagen no es más que una matriz de números (Alto x Ancho x 3 Canales de Color). OpenCV aplica operaciones matemáticas (convoluciones, transformadas) sobre esta matriz.
+5.  **Respuesta**: La imagen procesada se guarda en disco y el servidor devuelve su URL al frontend para mostrarla.
+
+4. MAPA DE CÓDIGO (ESTRUCTURA DE ARCHIVOS REFACTORIZADA)
+--------------------------------------------------------------------------------
+Acabamos de refactorizar el proyecto al español para mayor claridad:
+
+*   **`aplicacion.py` (Antes app.py)**:
+    *   Es el punto de entrada. Inicia el servidor web.
+    *   Gestiona la cámara web (`/video_en_vivo`) enviando un flujo constante de imágenes (MJPEG).
+
+*   **Carpeta `filtros/` (Módulos Matemáticos)**:
+    *   `bordes.py`: Detecta cambios bruscos de intensidad (líneas). Algoritmos: Canny, Sobel, Laplaciano.
+    *   `suavizado.py`: Elimina "ruido" (píxeles basura). Algoritmos: Blur (promedio), Gaussiano, Mediana.
+    *   `segmentacion.py`: Separa objetos del fondo. Algoritmos: K-Means (agrupamiento por color), Umbralización (Otsu).
+    *   `frecuencia.py`: Transforma la imagen al dominio de la frecuencia (Fourier). Muestra "ritmos" en la imagen, no píxeles.
+    *   `hough.py`: Transformada de Hough. Matemáticas para encontrar figuras geométricas perfectas (líneas, círculos) en imágenes imperfectas.
+    *   `morfologia.py`: Operaciones de forma (Erosión/Dilatación). Útil para limpiar imperfecciones en máscaras binarias.
+
+5. CONCEPTOS CLAVE PARA LA EXPOSICIÓN (LO QUE VA A PREGUNTAR EL JURADO)
+--------------------------------------------------------------------------------
+
+P: ¿Qué es una Convolución? (Usado en Suavizado y Bordes)
+R: Es el proceso de pasar una ventanita pequeña (llamada "kernel" o "núcleo") por encima de cada píxel de la imagen. 
+   - Si el kernel promedia los vecinos -> La imagen se ve borrosa (Blur).
+   - Si el kernel resta los vecinos de un lado con los del otro -> Se resaltan los bordes (Sobel).
+
+P: ¿Cómo funciona la detección de bordes (Canny)?
+R: Busca dónde la intensidad de la luz cambia drásticamente. Utiliza gradientes (derivadas matemáticas) y limpieza de ruido para dejar solo las líneas más fuertes.
+
+P: ¿Qué es K-Means (en Segmentación)?
+R: Es un algoritmo de Machine Learning no supervisado. Le decimos "encuentra los 3 colores principales de esta imagen". El algoritmo agrupa todos los miles de colores en solo esos 3, permitiendo separar, por ejemplo, "planta", "tierra" y "cielo".
+
+P: ¿Cómo procesas el video en vivo?
+R: El video es solo una secuencia rápida de fotos (frames). Flask captura la cámara, procesa cada foto individualmente con OpenCV (aplicando el filtro seleccionado) y las envía una tras otra muy rápido usando un formato llamado "multipart/x-mixed-replace".
+
+6. CONCLUSIÓN/VALOR AGREGADO
+--------------------------------------------------------------------------------
+Este proyecto no es solo un visor de fotos; es una plataforma de análisis. Permite descomponer una imagen en sus canales RGB (útil para agricultura de precisión), analizar su espectro de frecuencias y extraer características geométricas, todo desde el navegador web.
