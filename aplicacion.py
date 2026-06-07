@@ -26,10 +26,7 @@ aplicacion.config['CARPETA_SUBIDAS'] = 'static/processed'
 
 if not os.path.exists(aplicacion.config['CARPETA_SUBIDAS']):
     os.makedirs(aplicacion.config['CARPETA_SUBIDAS'])
-
-filtro_actual = None
-camara_activa = False
-
+# Variables de cámara web removidas (cámara desactivada)
 # ========= FUNCIÓN PRINCIPAL DE DESPACHO =========
 def aplicar_filtro_logica(img, filtro):
     # I.1 Suavizado
@@ -151,21 +148,7 @@ def obtener_descripcion(filtro):
 # ========= RUTAS =========
 @aplicacion.route('/', methods=['GET'])
 def index():
-    carpeta_img = os.path.join('static', 'img')
-    imagenes_locales = []
-    if os.path.exists(carpeta_img):
-        imagenes_locales = [f for f in os.listdir(carpeta_img) if f.lower().endswith(('.png', '.jpg', '.jpeg')) and os.path.isfile(os.path.join(carpeta_img, f))]
-        
-    carpeta_finca = os.path.join('static', 'img', 'finca')
-    imagenes_finca = []
-    if os.path.exists(carpeta_finca):
-        imagenes_finca = [f for f in os.listdir(carpeta_finca) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        try:
-            imagenes_finca.sort(key=lambda x: int(''.join(filter(str.isdigit, x))) if any(c.isdigit() for c in x) else x)
-        except:
-            pass
-            
-    return render_template('index.html', imagenes_locales=imagenes_locales, imagenes_finca=imagenes_finca, imagen_original=None)
+    return render_template('index.html')
 
 @aplicacion.route('/subir', methods=['POST'])
 def subir():
@@ -237,44 +220,6 @@ def procesar_imagen_api(ruta_archivo, nombre_archivo, filtro):
         'filtro': filtro,
         'nombre_archivo_resultado': "proc_" + nombre_archivo
     })
-
-# ========= CÁMARA =========
-def generar_cuadros():
-    camara = cv2.VideoCapture(0)
-    time.sleep(0.5)
-    while camara_activa:
-        success, frame = camara.read()
-        if not success:
-            break
-        if filtro_actual:
-            frame = aplicar_filtro_logica(frame, filtro_actual)
-        _, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    camara.release()
-
-@aplicacion.route('/video_en_vivo')
-def video_en_vivo():
-    return Response(generar_cuadros(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@aplicacion.route('/api_control_camara', methods=['POST'])
-def api_control_camara():
-    global camara_activa, filtro_actual
-    accion = request.json.get('action')
-    valor = request.json.get('value')
-    
-    if accion == 'start':
-        camara_activa = True
-        return jsonify({'status': 'started', 'message': 'Cámara iniciada'})
-    elif accion == 'stop':
-        camara_activa = False
-        return jsonify({'status': 'stopped', 'message': 'Cámara detenida'})
-    elif accion == 'filter':
-        filtro_actual = valor
-        return jsonify({'status': 'updated', 'message': f'Filtro {valor} aplicado'})
-    
-    return jsonify({'error': 'Invalid action'}), 400
 
 if __name__ == '__main__':
     aplicacion.run(debug=True)
