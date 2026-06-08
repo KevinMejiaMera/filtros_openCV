@@ -156,8 +156,17 @@ def ext_vignette_white(img):
         output[:, :, i] = output[:, :, i] * mask + 255 * (1 - mask)
     return output
 
+def ext_noise_salt_pepper(img, prob=0.02):
+    """Ruido Sal y Pimienta."""
+    output = np.copy(img)
+    thres = 1 - prob
+    output[np.random.random(img.shape[:2]) > thres] = 255
+    output[np.random.random(img.shape[:2]) < prob] = 0
+    return output
+
 # Dictionary map
 EXT_FILTERS = {
+    'noise_salt_pepper': ext_noise_salt_pepper,
     'geo_scale_up': ext_scale_up,
     'geo_scale_down': ext_scale_down,
     'geo_shear_x': ext_shear_x,

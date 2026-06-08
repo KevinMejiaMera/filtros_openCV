@@ -4,25 +4,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenCV Studio Pro</title>
+  <title>Procesamiento de Imágenes EM</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg-dark: #121010;       /* Carbón cálido oscuro */
-      --bg-panel: #1c1818;      /* Carbón/Marrón cálido medio */
-      --bg-input: #292424;      /* Carbón más claro */
-      --primary: #f59e0b;       /* Ámbar / Dorado cálido */
-      --primary-hover: #d97706; /* Ámbar oscuro */
-      --secondary: #a8a29e;     /* Gris cálido / Taupe */
-      --accent: #f97316;        /* Naranja cálido */
-      --text-main: #f5f5f4;     /* Blanco cálido */
-      --text-muted: #87817e;    /* Texto atenuado cálido */
-      --glass-bg: rgba(28, 24, 24, 0.8);
-      --glass-border: 1px solid rgba(245, 158, 11, 0.08); /* Borde tintado en ámbar */
+      --bg-dark: #faf6f0;       /* Crema suave cálido */
+      --bg-panel: #f0eae1;      /* Arena suave */
+      --bg-input: #ffffff;
+      --primary: #d97706;       /* Ámbar cálido / Dorado */
+      --primary-hover: #b45309; /* Ámbar oscuro */
+      --secondary: #78716c;     /* Gris piedra / Taupe */
+      --accent: #ea580c;        /* Naranja cálido */
+      --text-main: #44403c;     /* Marrón oscuro / Carbón cálido */
+      --text-muted: #7c7267;    /* Texto atenuado */
+      --glass-bg: rgba(255, 255, 255, 0.6);
+      --glass-border: 1px solid #e7ded4;
       --radius-lg: 16px;
       --radius-md: 12px;
       --radius-sm: 8px;
+    }
+
+    body.theme-dark {
+      --bg-dark: #1c1917;       /* Café oscuro muy cálido / Stone 900 */
+      --bg-panel: #292524;      /* Arena oscura / Stone 800 */
+      --bg-input: #1c1917;
+      --primary: #f59e0b;       /* Ámbar brillante pero cálido */
+      --primary-hover: #d97706; /* Ámbar estándar */
+      --secondary: #a8a29e;     /* Gris piedra claro / Stone 400 */
+      --accent: #f97316;        /* Naranja cálido */
+      --text-main: #f5f5f4;     /* Crema claro / Stone 100 */
+      --text-muted: #a8a29e;    /* Texto atenuado claro / Stone 400 */
+      --glass-bg: rgba(41, 37, 36, 0.6);
+      --glass-border: 1px solid #44403c; /* Borde marrón piedra / Stone 700 */
+    }
+
+    body, .sidebar, .filter-group, .filter-group-header, .filter-btn, .editor-panel, .btn-primary, .upload-area {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
 
     * {
@@ -53,15 +71,31 @@
     }
 
     .brand {
-      font-size: 1.8rem;
-      font-weight: 700;
       margin-bottom: 25px;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .brand-title {
+      font-size: 1.45rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
+      gap: 10px;
       background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
     }
 
     /* --- MENU ACORDEÓN DE FILTROS --- */
@@ -79,20 +113,20 @@
       width: 6px;
     }
     .filter-menu-container::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.05);
       border-radius: 3px;
     }
     .filter-menu-container::-webkit-scrollbar-thumb {
-      background: rgba(245, 158, 11, 0.2);
+      background: rgba(217, 119, 6, 0.2);
       border-radius: 3px;
     }
     .filter-menu-container::-webkit-scrollbar-thumb:hover {
-      background: rgba(245, 158, 11, 0.4);
+      background: rgba(217, 119, 6, 0.4);
     }
 
     .filter-group {
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.01);
       border-radius: var(--radius-md);
       overflow: hidden;
       transition: all 0.25s ease;
@@ -100,7 +134,7 @@
 
     .filter-group-header {
       padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.01);
+      background: rgba(0, 0, 0, 0.01);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -113,7 +147,7 @@
     }
 
     .filter-group-header:hover {
-      background: rgba(245, 158, 11, 0.04);
+      background: rgba(217, 119, 6, 0.04);
     }
 
     .filter-group-header i.chevron {
@@ -123,8 +157,8 @@
     }
 
     .filter-group.open {
-      border-color: rgba(245, 158, 11, 0.2);
-      background: rgba(0, 0, 0, 0.1);
+      border-color: rgba(217, 119, 6, 0.25);
+      background: rgba(0, 0, 0, 0.02);
     }
 
     .filter-group.open .filter-group-header i.chevron {
@@ -136,7 +170,7 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.03);
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -152,8 +186,8 @@
       width: 100%;
       text-align: left;
       padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(0, 0, 0, 0.04);
       border-radius: var(--radius-sm);
       color: var(--secondary);
       font-family: inherit;
@@ -167,7 +201,7 @@
     }
 
     .filter-btn:hover:not(:disabled) {
-      background: rgba(245, 158, 11, 0.08);
+      background: rgba(217, 119, 6, 0.08);
       border-color: var(--primary);
       color: var(--primary);
       padding-left: 18px;
@@ -176,12 +210,12 @@
     .filter-btn.active {
       background: var(--primary) !important;
       border-color: var(--primary) !important;
-      color: #121010 !important;
+      color: #faf6f0 !important;
       font-weight: 600;
     }
 
     .filter-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.35;
       cursor: not-allowed;
     }
 
@@ -191,8 +225,8 @@
       padding: 40px;
       overflow-y: auto;
       background-image:
-        radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.03) 0%, transparent 45%),
-        radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.03) 0%, transparent 45%);
+        radial-gradient(circle at 10% 20%, rgba(217, 119, 6, 0.03) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(234, 88, 12, 0.03) 0%, transparent 45%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -201,17 +235,17 @@
 
     /* --- UPLOAD ZONE --- */
     .upload-area {
-      border: 2px dashed rgba(245, 158, 11, 0.2);
+      border: 2px dashed rgba(217, 119, 6, 0.2);
       border-radius: var(--radius-lg);
       padding: 50px 30px;
       text-align: center;
       transition: all 0.3s;
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.5);
     }
 
     .upload-area:hover {
       border-color: var(--primary);
-      background: rgba(245, 158, 11, 0.03);
+      background: rgba(217, 119, 6, 0.03);
     }
 
     /* --- COMPONENTES DEL WORKSPACE --- */
@@ -221,7 +255,7 @@
       background: var(--primary);
       border: none;
       border-radius: var(--radius-md);
-      color: #121010;
+      color: #faf6f0;
       font-family: inherit;
       font-weight: 600;
       outline: none;
@@ -236,13 +270,6 @@
 
     .btn-primary:active {
       transform: translateY(0);
-    }
-
-    .channel-row img {
-      width: 100%;
-      border-radius: var(--radius-sm);
-      height: 100px;
-      object-fit: cover;
     }
 
     /* Slider de intensidad */
@@ -261,9 +288,29 @@
       transform: scale(1.2);
     }
 
+    /* Barra de progreso de carga (varita) */
+    #progress-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      display: none;
+      z-index: 10;
+    }
+
+    #progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.05s linear;
+      box-shadow: 0 0 6px var(--primary);
+    }
+
     /* Spinner */
     .loader {
-      border: 3px solid rgba(255, 255, 255, 0.05);
+      border: 3px solid rgba(0, 0, 0, 0.05);
       border-radius: 50%;
       border-top: 3px solid var(--primary);
       width: 35px;
@@ -289,7 +336,7 @@
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1050px) {
       body {
         flex-direction: column;
         overflow: auto;
@@ -303,184 +350,295 @@
       .main-content {
         padding: 20px;
       }
+      #workspace-panel {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* --- INTERACTIVE BEFORE-AFTER SLIDER --- */
+    .slider-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      background: #12100e;
+      border-radius: var(--radius-lg);
+      border: var(--glass-border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .slider-wrapper {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: ew-resize;
+      user-select: none;
+    }
+
+    .slider-image-orig, .slider-image-proc {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .slider-image-proc {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      clip-path: inset(0 0 0 50%);
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: var(--primary);
+      z-index: 10;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+
+    .slider-handle::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 1px;
+      width: 2px;
+      background: #ffffff;
+      opacity: 0.8;
+    }
+
+    .slider-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      background: var(--primary);
+      border: 3px solid #faf6f0;
+      color: #faf6f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.1s, background-color 0.2s;
+    }
+
+    .slider-wrapper:hover .slider-button {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .slider-badge {
+      position: absolute;
+      top: 15px;
+      padding: 6px 12px;
+      background: rgba(28, 25, 22, 0.75);
+      color: #faf6f0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      z-index: 5;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .badge-orig {
+      left: 15px;
+    }
+
+    .badge-proc {
+      right: 15px;
+      color: var(--primary);
+      border-color: rgba(217, 119, 6, 0.4);
+    }
+
+    /* --- FLOATING THEME TOGGLE --- */
+    .theme-toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--bg-panel);
+      border: var(--glass-border);
+      color: var(--primary);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .theme-toggle-btn:hover {
+      transform: scale(1.1) rotate(15deg);
+      background: var(--bg-dark);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .theme-toggle-btn i {
+      font-size: 1.15rem;
     }
   </style>
 </head>
 
 <body>
 
+  <!-- BOTÓN FLOTANTE PARA CAMBIO DE TEMA -->
+  <button class="theme-toggle-btn" onclick="toggleTheme()" title="Alternar Modo Claro/Oscuro Cálido">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
   <!-- SIDEBAR (MENÚ DE FILTROS EN EL LADO IZQUIERDO) -->
   <aside class="sidebar">
     <div class="brand">
-      <i class="fas fa-magic" style="color: var(--primary); margin-right: 10px; font-size: 1.5rem;"></i>
-      OpenCV Studio
+      <div class="brand-title">
+        <i class="fas fa-magic" style="color: var(--primary); font-size: 1.4rem;"></i>
+        <span>Procesamiento EM</span>
+      </div>
+      <span class="brand-subtitle">Procesamiento de Imágenes EM</span>
     </div>
     
     <!-- Alerta informativa inicial -->
-    <div id="sidebar-info-alert" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.15); padding: 14px; border-radius: var(--radius-md); font-size: 0.82rem; color: var(--secondary); margin-bottom: 20px; line-height: 1.45;">
+    <div id="sidebar-info-alert" style="background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.12); padding: 14px; border-radius: var(--radius-md); font-size: 0.82rem; color: var(--secondary); margin-bottom: 20px; line-height: 1.45;">
       <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 6px;"></i>
-      Carga una imagen en el panel del centro para poder habilitar y aplicar la suite de filtros OpenCV.
+      Carga una imagen en el centro para habilitar los filtros.
     </div>
 
     <!-- Contenedor del Acordeón -->
     <div class="filter-menu-container">
       
-      <!-- 1. SPATIAL & EDGES -->
-      <div class="filter-group">
+      <!-- 1. SPATIAL & SMOOTHING -->
+      <div class="filter-group open">
         <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-layer-group" style="margin-right: 8px; color: var(--primary);"></i> I. Espaciales & Bordes</span>
+          <span><i class="fas fa-sliders" style="margin-right: 8px; color: var(--primary);"></i> Suavizado y Realce</span>
           <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('blur')">Blur (Suavizado Simple) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('gaussiano')">Gaussiano <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('mediana')">Mediana <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('bilateral')">Bilateral <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('sharpen')">Sharpen (Enfoque) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('high_pass')">High Pass <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('unsharp')">Unsharp Mask <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('sobel')">Sobel <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('canny')">Canny <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('laplaciano')">Laplaciano <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('log')">LoG (Laplacian of Gauss) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('prewitt')">Prewitt <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('roberts')">Roberts <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('emboss')">Emboss (Relieve) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('erosion')">Erosión <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('dilatacion')">Dilatación <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('apertura')">Apertura <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('cierre')">Cierre <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('gradiente')">Gradiente Morfológico <i class="fas fa-magic"></i></button>
+          <button class="filter-btn" disabled onclick="applyFilter('blur')">
+            <span><i class="fas fa-eye-dropper" style="margin-right: 8px; width: 16px;"></i>Blur (Suavizado)</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('gaussiano')">
+            <span><i class="fas fa-snowflake" style="margin-right: 8px; width: 16px;"></i>Gaussiano</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('mediana')">
+            <span><i class="fas fa-filter" style="margin-right: 8px; width: 16px;"></i>Mediana</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('bilateral')">
+            <span><i class="fas fa-adjust" style="margin-right: 8px; width: 16px;"></i>Bilateral</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('sharpen')">
+            <span><i class="fas fa-gem" style="margin-right: 8px; width: 16px;"></i>Sharpen (Enfoque)</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('high_pass')">
+            <span><i class="fas fa-wave-square" style="margin-right: 8px; width: 16px;"></i>High Pass</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('unsharp')">
+            <span><i class="fas fa-compress" style="margin-right: 8px; width: 16px;"></i>Unsharp Mask</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
 
-      <!-- 2. SEGMENTATION & HOUGH -->
+      <!-- 2. BORDES -->
       <div class="filter-group">
         <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-shapes" style="margin-right: 8px; color: var(--primary);"></i> II. Segmentación & Hough</span>
+          <span><i class="fas fa-border-all" style="margin-right: 8px; color: var(--primary);"></i> Bordes</span>
           <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('threshold')">Umbral Simple <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('adaptive')">Umbral Adaptativo <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('otsu')">Otsu <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('kmeans')">K-Means Clustering <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('hough')">Hough Líneas Prob. <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('hough_standard')">Hough Líneas Estándar <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('hough_circles')">Hough Círculos <i class="fas fa-magic"></i></button>
+          <button class="filter-btn" disabled onclick="applyFilter('canny')">
+            <span><i class="fas fa-border-style" style="margin-right: 8px; width: 16px;"></i>Bordes (Canny)</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
 
-      <!-- 3. COLOR & CHANNELS -->
+      <!-- 3. FREQUENCY -->
       <div class="filter-group">
         <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-palette" style="margin-right: 8px; color: var(--primary);"></i> III. Color & Canales</span>
+          <span><i class="fas fa-wave-square" style="margin-right: 8px; color: var(--primary);"></i> Frecuencia</span>
           <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('gray')">Escala de Grises <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('hsv')">Espacio HSV <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('equalize')">Ecualizar Histograma <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('bright_contrast')">Brillo/Contraste Auto <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('pseudocolor')">Pseudocolor Jet <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_red')">Solo Canal Rojo <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_green')">Solo Canal Verde <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_blue')">Solo Canal Azul <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_hue')">Solo Matiz (Hue) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_sat')">Solo Saturación <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_val')">Solo Valor (Luz) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_swap_rb')">Intercambiar Rojo/Azul <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_ocean')">Mapa Océano <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_bone')">Mapa Hueso <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_spring')">Mapa Primavera <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_summer')">Mapa Verano <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_autumn')">Mapa Otoño <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_winter')">Mapa Invierno <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('col_map_rainbow')">Mapa Arcoiris <i class="fas fa-magic"></i></button>
+          <button class="filter-btn" disabled onclick="applyFilter('dft')">
+            <span><i class="fas fa-chart-bar" style="margin-right: 8px; width: 16px;"></i>Fourier (DFT)</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('dct')">
+            <span><i class="fas fa-network-wired" style="margin-right: 8px; width: 16px;"></i>Coseno (DCT)</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
 
-      <!-- 4. GEOMETRIC -->
+      <!-- 4. NOISE -->
       <div class="filter-group">
         <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-sync-alt" style="margin-right: 8px; color: var(--primary);"></i> IV. Geometría & Giros</span>
+          <span><i class="fas fa-braille" style="margin-right: 8px; color: var(--primary);"></i> Ruido</span>
           <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('rot_90')">Rotar 90° Reloj <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('rot_180')">Rotar 180° <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('flip_h')">Volteo Horizontal <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('flip_v')">Volteo Vertical <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('geo_scale_up')">Escalar Zoom 1.5x <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('geo_scale_down')">Escalar Alejar 0.5x <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('geo_shear_x')">Cizalla X (Shear) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('geo_shear_y')">Cizalla Y (Shear) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('geo_crop_169')">Recorte Cine 16:9 <i class="fas fa-magic"></i></button>
-        </div>
-      </div>
-
-      <!-- 5. EDITOR GIMP PRO -->
-      <div class="filter-group">
-        <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-sliders-h" style="margin-right: 8px; color: var(--primary);"></i> V. Editor GIMP Pro</span>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('g_bright')">Brillo +30 <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_bright_minus')">Brillo -30 <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_contrast')">Contraste + <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_gamma')">Gamma <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_invert')">Invertir Colores <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_sepia')">Sepia <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_sketch')">Sketch Lápiz <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_oil')">Pintura Oleo <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_water')">Acuarela <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_pixel')">Pixel Art <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_glitch')">Glitch RGB <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_wave')">Onda Distorsión <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_mirror')">Espejo <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('g_vignette')">Viñeta Negra <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('art_vignette_white')">Viñeta Blanca <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('art_glass')">Efecto Vidrio <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('art_ripple')">Ondulación Agua <i class="fas fa-magic"></i></button>
-        </div>
-      </div>
-
-      <!-- 6. SPECIALS & NOISE -->
-      <div class="filter-group">
-        <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-          <span><i class="fas fa-magic" style="margin-right: 8px; color: var(--primary);"></i> VI. Especiales & Ruido</span>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="filter-group-content">
-          <button class="filter-btn" disabled onclick="applyFilter('noise_salt')">Agregar Ruido Sal <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('noise_pepper')">Agregar Ruido Pimienta <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('denoise_fast')">Eliminar Ruido (AI) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('morph_tophat')">Top Hat (Detalle) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('morph_blackhat')">Black Hat (Detalle) <i class="fas fa-magic"></i></button>
-          <button class="filter-btn" disabled onclick="applyFilter('art_emboss_90')">Emboss 90° <i class="fas fa-magic"></i></button>
+          <button class="filter-btn" disabled onclick="applyFilter('noise_salt_pepper')">
+            <span><i class="fas fa-ellipsis-h" style="margin-right: 8px; width: 16px;"></i>Sal y Pimienta</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="filter-btn" disabled onclick="applyFilter('g_noise')">
+            <span><i class="fas fa-wind" style="margin-right: 8px; width: 16px;"></i>Ruido Gaussiano</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
 
     </div>
   </aside>
 
-  <!-- SECCIÓN CENTRAL (CARGA DE IMAGEN & ESPACIO DE TRABAJO CON SLIDER) -->
+  <!-- SECCIÓN CENTRAL Y DERECHA (WORKSPACE EN GRID) -->
   <main class="main-content">
     
-    <!-- PANEL DE SUBIDA (Visible al inicio) -->
-    <div id="upload-panel" class="editor-panel active" style="max-width: 600px; width: 100%; margin: auto; background: var(--glass-bg); border: var(--glass-border); padding: 40px; border-radius: var(--radius-lg); backdrop-filter: blur(12px); animation: fadeIn 0.4s ease;">
+    <!-- PANEL DE SUBIDA (Visible al inicio, centrado) -->
+    <div id="upload-panel" class="editor-panel active" style="max-width: 600px; width: 100%; margin: auto; background: var(--glass-bg); border: var(--glass-border); padding: 40px; border-radius: var(--radius-lg); backdrop-filter: blur(12px); animation: fadeIn 0.4s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
       <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="font-size: 2.3rem; margin-bottom: 10px; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
-          OpenCV Studio Pro
+        <h1 style="font-size: 2.1rem; margin-bottom: 10px; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; letter-spacing: -0.5px;">
+          Procesamiento de Imágenes EM
         </h1>
         <p style="color: var(--text-muted); font-size: 0.95rem;">Carga una imagen en el centro para iniciar tu edición</p>
       </div>
 
       <form id="uploadForm" enctype="multipart/form-data">
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()" style="cursor: pointer; border: 2px dashed rgba(245, 158, 11, 0.25); padding: 50px 20px; border-radius: var(--radius-lg); text-align: center; background: rgba(0,0,0,0.15); transition: all 0.2s;">
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()" style="cursor: pointer; border: 2px dashed rgba(217, 119, 6, 0.2); padding: 50px 20px; border-radius: var(--radius-lg); text-align: center; background: rgba(0,0,0,0.02); transition: all 0.2s;">
           <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
-          <h3 id="fileNameDisp" style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">Haz clic para seleccionar o arrastrar</h3>
+          <h3 id="fileNameDisp" style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">Haz clic para seleccionar archivo</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Soporta archivos JPG, JPEG, PNG</p>
           <input type="file" name="file" id="fileInput" hidden onchange="autoUploadFile()">
         </div>
@@ -488,80 +646,115 @@
       </form>
     </div>
 
-    <!-- PANEL DEL ESPACIO DE TRABAJO (Oculto al inicio) -->
-    <div id="workspace-panel" class="editor-panel" style="max-width: 900px; width: 100%; margin: 0 auto; display: none; flex-direction: column; gap: 24px; animation: fadeIn 0.4s ease;">
+    <!-- PANEL DEL ESPACIO DE TRABAJO (Grid de 2 columnas principales, oculto al inicio) -->
+    <div id="workspace-panel" class="editor-panel" style="max-width: 1200px; width: 100%; display: none; grid-template-columns: 2.2fr 1fr; gap: 30px; align-items: start; animation: fadeIn 0.4s ease;">
       
-      <!-- Cabecera de la imagen cargada y botones de acción -->
-      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 15px 25px; border-radius: var(--radius-md); border: var(--glass-border);">
-        <div>
-          <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);" id="active-filename">ImagenActiva.jpg</h2>
-          <span style="font-size: 0.85rem; color: var(--primary);" id="active-filter-label">Filtro aplicado: Original</span>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <a id="btn-download" href="#" download="resultado.jpg" class="btn-primary" style="width: auto; padding: 8px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; text-decoration: none; background: #15803d; color: white;">
-            <i class="fas fa-download"></i> Descargar
-          </a>
-          <button onclick="resetEditor()" class="btn-primary" style="width: auto; padding: 8px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15);">
-            <i class="fas fa-undo"></i> Cargar otra
-          </button>
-        </div>
-      </div>
-
-      <!-- Lienzo principal donde se superponen las imágenes original y procesada -->
-      <div style="position: relative; width: 100%; height: 450px; background: #000; border-radius: var(--radius-lg); border: var(--glass-border); overflow: hidden; display: flex; align-items: center; justify-content: center;">
-        <!-- Imagen original en el fondo -->
-        <img id="viewOrig" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; z-index: 1;">
-        <!-- Imagen procesada por encima (la opacidad es controlada por el slider de intensidad) -->
-        <img id="viewProc" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; z-index: 2; transition: opacity 0.02s linear;">
-        <!-- Cargador visual intermedio -->
-        <div class="loader" id="workspaceLoader" style="position: absolute; z-index: 3;"></div>
-      </div>
-
-      <!-- Slider de control de intensidad de filtros (Sea con un Slider) -->
-      <div style="background: var(--bg-panel); border: var(--glass-border); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
-            <i class="fas fa-sliders-h" style="color: var(--primary); margin-right: 6px;"></i> Ajustar Intensidad del Filtro
-          </span>
-          <span id="intensityVal" style="color: var(--primary); font-weight: 700; font-size: 1.05rem;">100%</span>
-        </div>
-        <input type="range" id="filterIntensity" min="0" max="100" value="100" style="width: 100%; accent-color: var(--primary); height: 6px; border-radius: 3px; cursor: pointer; background: rgba(255, 255, 255, 0.1);" oninput="adjustIntensity(this.value)">
-        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
-          <span>Original (0%)</span>
-          <span>Filtro Completo (100%)</span>
-        </div>
-      </div>
-
-      <!-- Insight Técnico de OpenCV -->
-      <div style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.08); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 6px;">
-        <h4 style="color: var(--primary); font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-          <i class="fas fa-info-circle"></i> Insight Técnico
-        </h4>
-        <p id="viewDesc" style="color: var(--secondary); font-size: 0.88rem; line-height: 1.45;">
-          Selecciona un filtro de la barra izquierda para ver la explicación matemática e instrumental.
-        </p>
-      </div>
-
-      <!-- Descomposición de canales RGB -->
-      <div style="background: var(--bg-panel); border: var(--glass-border); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 15px;">
-        <h4 style="color: var(--text-main); font-weight: 700; font-size: 0.95rem;">
-          <i class="fas fa-chart-bar" style="color: var(--primary); margin-right: 6px;"></i> Descomposición de Canales (RGB)
-        </h4>
-        <div class="channel-row" style="display: flex; gap: 20px;">
-          <div style="flex: 1; text-align: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.02);">
-            <p style="color: #3b82f6; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;">Canal Azul</p>
-            <img id="viewBlue" src="" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid rgba(59, 130, 246, 0.15);">
+      <!-- COLUMNA IZQUIERDA: LIENZO DE IMAGEN CON SLIDER DESLIZANTE -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Cabecera de la imagen cargada y campo de nombre de descarga -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 15px 25px; border-radius: var(--radius-md); border: var(--glass-border); gap: 15px; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; white-space: nowrap;">Nombre de descarga:</span>
+            <input type="text" id="download-name-input" style="flex: 1; min-width: 150px; padding: 8px 12px; border: var(--glass-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem; background: var(--bg-input); color: var(--text-main); outline: none; transition: border-color 0.2s;" placeholder="Nombre del archivo">
           </div>
-          <div style="flex: 1; text-align: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.02);">
-            <p style="color: #22c55e; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;">Canal Verde</p>
-            <img id="viewGreen" src="" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid rgba(34, 197, 94, 0.15);">
+          <div style="display: flex; gap: 10px;">
+            <a id="btn-download" href="#" download="resultado.jpg" class="btn-primary" style="width: auto; padding: 8px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; text-decoration: none; background: #15803d; color: white;" onclick="triggerDownload(event)">
+              <i class="fas fa-download"></i> Descargar
+            </a>
+            <button onclick="resetEditor()" class="btn-primary" style="width: auto; padding: 8px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15);">
+              <i class="fas fa-undo"></i> Cargar otra
+            </button>
           </div>
-          <div style="flex: 1; text-align: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.02);">
-            <p style="color: #ef4444; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;">Canal Rojo</p>
-            <img id="viewRed" src="" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.15);">
+        </div>
+
+        <!-- LIENZO INTERACTIVO ANTES-DESPUÉS (SLIDER CENTRAL) -->
+        <div class="slider-container" id="slider-container">
+          <div class="slider-wrapper" id="slider-wrapper">
+            <!-- Badges flotantes -->
+            <div class="slider-badge badge-orig">Original</div>
+            <div class="slider-badge badge-proc" id="badge-proc-label">Procesada</div>
+            
+            <!-- Imagen original (abajo) -->
+            <img id="viewOrig" class="slider-image-orig" src="">
+            
+            <!-- Imagen procesada (arriba con clip-path) -->
+            <img id="viewProc" class="slider-image-proc" src="" style="transition: opacity 0.03s linear;">
+            
+            <!-- Barra divisora deslizante (Handle) -->
+            <div class="slider-handle" id="slider-handle">
+              <div class="slider-button">
+                <i class="fas fa-arrows-alt-h"></i>
+              </div>
+            </div>
+            
+            <!-- Varita de progreso (Loading bar) -->
+            <div id="progress-container">
+              <div id="progress-bar"></div>
+            </div>
+            
+            <!-- Cargador visual intermedio (Spinner) -->
+            <div class="loader" id="workspaceLoader" style="position: absolute; z-index: 100;"></div>
           </div>
         </div>
       </div>
+
+      <!-- COLUMNA DERECHA: CONTROLES DEL FILTRO, METADATOS Y DESCRIPCIÓN TÉCNICA -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Info del Filtro Aplicado -->
+        <div style="background: var(--bg-panel); border: var(--glass-border); padding: 20px 25px; border-radius: var(--radius-md);">
+          <span style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 4px; font-weight: 600;">Filtro Seleccionado</span>
+          <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--primary);" id="active-filter-label">Original</h3>
+        </div>
+
+        <!-- Slider de control de intensidad de filtros (Opacidad) -->
+        <div style="background: var(--bg-panel); border: var(--glass-border); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">
+              <i class="fas fa-sliders-h" style="color: var(--primary); margin-right: 6px;"></i> Intensidad del Filtro
+            </span>
+            <span id="intensityVal" style="color: var(--primary); font-weight: 700; font-size: 1.05rem;">100%</span>
+          </div>
+          <input type="range" id="filterIntensity" min="0" max="100" value="100" style="width: 100%; accent-color: var(--primary); height: 6px; border-radius: 3px; cursor: pointer; background: rgba(0, 0, 0, 0.08);" oninput="adjustIntensity(this.value)">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            <span>Original (0%)</span>
+            <span>Completo (100%)</span>
+          </div>
+        </div>
+
+        <!-- Tarjeta Técnica de Metadatos -->
+        <div style="background: var(--bg-panel); border: var(--glass-border); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 12px;">
+          <h4 style="color: var(--text-main); font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); padding-bottom: 8px; margin-bottom: 4px;">
+            <i class="fas fa-file-image" style="color: var(--primary);"></i> Metadatos de Imagen
+          </h4>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted);">Resolución:</span>
+              <span id="meta-resolution" style="font-weight: 600; color: var(--text-main);">-</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted);">Ancho:</span>
+              <span id="meta-width" style="font-weight: 600; color: var(--text-main);">-</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted);">Alto:</span>
+              <span id="meta-height" style="font-weight: 600; color: var(--text-main);">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Concepto Técnico de OpenCV con su breve resumen -->
+        <div style="background: rgba(217, 119, 6, 0.02); border: 1px solid rgba(217, 119, 6, 0.08); padding: 20px 25px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px;">
+          <h4 style="color: var(--primary); font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(217, 119, 6, 0.1); padding-bottom: 6px;">
+            <i class="fas fa-info-circle"></i> Concepto Técnico
+          </h4>
+          <p id="viewDesc" style="color: var(--text-main); font-size: 0.88rem; line-height: 1.5; font-weight: 400;">
+            Selecciona cualquier filtro del acordeón izquierdo para ver su explicación y modificar su intensidad.
+          </p>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -570,6 +763,88 @@
     let currentFilename = '';
     let currentOrigin = '';
     let activeFilter = 'original';
+    let isDragging = false;
+
+    // Inicializar manejadores del slider antes-después
+    function initSlider() {
+      const wrapper = document.getElementById('slider-wrapper');
+      const handle = document.getElementById('slider-handle');
+      const viewProc = document.getElementById('viewProc');
+      
+      if (!wrapper || !handle || !viewProc) return;
+      
+      const moveSlider = (clientX) => {
+        const rect = wrapper.getBoundingClientRect();
+        let x = clientX - rect.left;
+        if (x < 0) x = 0;
+        if (x > rect.width) x = rect.width;
+        const xPercent = (x / rect.width) * 100;
+        handle.style.left = xPercent + '%';
+        viewProc.style.clipPath = `inset(0 0 0 ${xPercent}%)`;
+      };
+      
+      const startDrag = (e) => {
+        isDragging = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        moveSlider(clientX);
+        e.preventDefault();
+      };
+      
+      const drag = (e) => {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        moveSlider(clientX);
+      };
+      
+      const stopDrag = () => {
+        isDragging = false;
+      };
+      
+      // Eventos de ratón
+      wrapper.addEventListener('mousedown', startDrag);
+      window.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', stopDrag);
+      
+      // Eventos táctiles
+      wrapper.addEventListener('touchstart', startDrag, { passive: false });
+      window.addEventListener('touchmove', drag, { passive: false });
+      window.addEventListener('touchend', stopDrag);
+    }
+
+    // Inicializar el slider cuando cargue el script
+    document.addEventListener('DOMContentLoaded', () => {
+      initSlider();
+      
+      // Aplicar tema guardado
+      const savedTheme = localStorage.getItem('theme');
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      if (savedTheme === 'dark') {
+        body.classList.add('theme-dark');
+        if (icon) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        }
+      }
+    });
+
+    // Cambiar entre tema claro y oscuro cálido
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('theme-dark')) {
+        body.classList.remove('theme-dark');
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+        localStorage.setItem('theme', 'light');
+      } else {
+        body.classList.add('theme-dark');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
 
     // Manejo del menú acordeón lateral
     function toggleFilterGroup(header) {
@@ -585,6 +860,53 @@
       if (!isOpen) {
         group.classList.add('open');
       }
+    }
+
+    // Actualizar los metadatos de la imagen en la interfaz
+    function updateMetadata(ancho, alto) {
+      document.getElementById('meta-resolution').innerText = `${ancho} x ${alto} px`;
+      document.getElementById('meta-width').innerText = `${ancho} px`;
+      document.getElementById('meta-height').innerText = `${alto} px`;
+    }
+
+    // Personalizar el nombre de descarga del archivo
+    function triggerDownload(e) {
+      e.preventDefault();  // Evita que el <a> navegue antes de cambiar el nombre
+
+      const btn      = document.getElementById('btn-download');
+      const fileUrl  = btn.href;
+      if (!fileUrl || fileUrl === '#' || fileUrl === window.location.href) return;
+
+      // Determinar el nombre final
+      const inputVal = document.getElementById('download-name-input').value.trim();
+      let extension  = currentFilename ? currentFilename.substring(currentFilename.lastIndexOf('.')) : '.jpg';
+      let finalName;
+      if (inputVal) {
+        finalName = inputVal.toLowerCase().endsWith(extension.toLowerCase())
+          ? inputVal
+          : inputVal + extension;
+      } else {
+        finalName = 'resultado_' + (currentFilename || 'imagen.jpg');
+      }
+
+      // Descargar via Blob para que el nombre sea siempre el correcto
+      fetch(fileUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const tempUrl = URL.createObjectURL(blob);
+          const tempA   = document.createElement('a');
+          tempA.href     = tempUrl;
+          tempA.download = finalName;
+          document.body.appendChild(tempA);
+          tempA.click();
+          document.body.removeChild(tempA);
+          URL.revokeObjectURL(tempUrl);
+        })
+        .catch(() => {
+          // Fallback: descarga directa con el atributo actualizado
+          btn.setAttribute('download', finalName);
+          btn.click();
+        });
     }
 
     // Envío automático al seleccionar el archivo en el centro
@@ -614,15 +936,25 @@
           
           // Guardar estado de archivo activo
           const urlOrig = data.url_original;
-          currentFilename = urlOrig.substring(urlOrig.lastIndexOf('/') + 1);
+          currentFilename = decodeURIComponent(urlOrig.substring(urlOrig.lastIndexOf('/') + 1));
           currentOrigin = 'processed';
           activeFilter = 'original';
           
-          // Cambiar paneles visibles
+          // Rellenar entrada de nombre de descarga con el nombre original
+          document.getElementById('download-name-input').value = fileInput.files[0].name;
+          
+          // Actualizar metadatos
+          updateMetadata(data.ancho, data.alto);
+          
+          // Ajustar aspect ratio del wrapper de la imagen
+          const wrapper = document.getElementById('slider-wrapper');
+          wrapper.style.aspectRatio = `${data.ancho} / ${data.alto}`;
+          
+          // Cambiar paneles visibles (ahora grid de dos columnas)
           document.getElementById('upload-panel').style.display = 'none';
-          document.getElementById('workspace-panel').style.display = 'flex';
-          document.getElementById('active-filename').innerText = fileInput.files[0].name;
-          document.getElementById('active-filter-label').innerText = 'Filtro aplicado: Original';
+          document.getElementById('workspace-panel').style.display = 'grid';
+          document.getElementById('active-filter-label').innerText = 'Original';
+          document.getElementById('badge-proc-label').innerText = 'Procesada';
           
           // Habilitar todos los botones de filtros
           document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -634,15 +966,18 @@
           // Renderizar recursos
           document.getElementById('viewOrig').src = urlOrig;
           document.getElementById('viewProc').src = data.url_procesada;
-          document.getElementById('viewBlue').src = data.url_azul;
-          document.getElementById('viewGreen').src = data.url_verde;
-          document.getElementById('viewRed').src = data.url_roja;
           document.getElementById('viewDesc').innerText = data.descripcion;
           
-          // Resetear control de intensidad
+          // Resetear slider antes-después a 50%
+          const handle = document.getElementById('slider-handle');
+          const viewProc = document.getElementById('viewProc');
+          handle.style.left = '50%';
+          viewProc.style.clipPath = 'inset(0 0 0 50%)';
+          
+          // Resetear control de opacidad
           document.getElementById('filterIntensity').value = 100;
           document.getElementById('intensityVal').innerText = '100%';
-          document.getElementById('viewProc').style.opacity = 1;
+          viewProc.style.opacity = 1;
           
           // Configurar enlace de descarga
           document.getElementById('btn-download').href = data.url_procesada;
@@ -650,16 +985,17 @@
         .catch(err => {
           loader.style.display = 'none';
           console.error(err);
-          alert("Ocurrió un error al subir la imagen.");
+          alert("Ocurrió un error al subir la imagen. Por favor, asegúrate de que el servidor Flask esté ejecutándose.");
         });
     }
 
-    // Aplicar filtro al hacer clic en un botón de la barra lateral
+    // Aplicar filtro al hacer clic en un botón de la barra lateral (con varita de carga)
     function applyFilter(filterCode) {
       if (!currentFilename) return;
       
+      const progressBar = document.getElementById('progress-bar');
+      const progressContainer = document.getElementById('progress-container');
       const loader = document.getElementById('workspaceLoader');
-      loader.style.display = 'block';
       
       // Actualizar estado activo en la barra lateral
       document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -667,6 +1003,29 @@
       });
       const activeBtn = document.querySelector(`.filter-btn[onclick="applyFilter('${filterCode}')"]`);
       if (activeBtn) activeBtn.classList.add('active');
+
+      // Reiniciar y mostrar varita de carga animada (duración aprox. 1.2 segundos)
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+      loader.style.display = 'block';
+      
+      let progress = 0;
+      let fetchDone = false;
+      let responseData = null;
+      
+      // Llenado de la barra paso a paso
+      const interval = setInterval(() => {
+        progress += 5;
+        if (progress > 100) progress = 100;
+        progressBar.style.width = progress + '%';
+        
+        if (progress === 100) {
+          clearInterval(interval);
+          if (fetchDone) {
+            showResults();
+          }
+        }
+      }, 60); // 20 pasos de 60ms = 1200ms
 
       const formData = new FormData();
       formData.append('image_name', currentFilename);
@@ -679,38 +1038,56 @@
       })
         .then(response => response.json())
         .then(data => {
-          loader.style.display = 'none';
-          if (data.error) {
-            alert(data.error);
-            return;
+          fetchDone = true;
+          responseData = data;
+          // Si la animación de la varita ya terminó, mostrar resultados de inmediato
+          if (progress === 100) {
+            showResults();
           }
-          
-          // Actualizar datos del filtro aplicado
-          activeFilter = filterCode;
-          
-          let cleanLabel = filterCode.replace('g_', '').replace('col_', '').replace('geo_', '').replace('noise_', '');
-          document.getElementById('active-filter-label').innerText = 'Filtro aplicado: ' + cleanLabel.toUpperCase();
-          
-          // Evitar caché agregando el timestamp
-          const t = new Date().getTime();
-          document.getElementById('viewProc').src = data.url_procesada + '?t=' + t;
-          document.getElementById('viewBlue').src = data.url_azul + '?t=' + t;
-          document.getElementById('viewGreen').src = data.url_verde + '?t=' + t;
-          document.getElementById('viewRed').src = data.url_roja + '?t=' + t;
-          document.getElementById('viewDesc').innerText = data.descripcion;
-          
-          // Actualizar descarga
-          document.getElementById('btn-download').href = data.url_procesada;
-          
-          // Mantener opacidad elegida por el slider
-          const intensity = document.getElementById('filterIntensity').value;
-          document.getElementById('viewProc').style.opacity = intensity / 100;
         })
         .catch(err => {
+          clearInterval(interval);
+          progressContainer.style.display = 'none';
           loader.style.display = 'none';
           console.error(err);
           alert("Error al procesar la imagen con el filtro seleccionado.");
         });
+        
+      function showResults() {
+        loader.style.display = 'none';
+        progressContainer.style.display = 'none';
+        
+        if (responseData.error) {
+          alert(responseData.error);
+          return;
+        }
+        
+        // Actualizar datos del filtro aplicado
+        activeFilter = filterCode;
+        
+        let cleanLabel = filterCode.replace('g_', '').replace('col_', '').replace('geo_', '').replace('noise_', '');
+        document.getElementById('active-filter-label').innerText = cleanLabel.toUpperCase();
+        document.getElementById('badge-proc-label').innerText = 'Procesada: ' + cleanLabel.toUpperCase();
+        
+        // Evitar caché agregando el timestamp
+        const t = new Date().getTime();
+        document.getElementById('viewProc').src = responseData.url_procesada + '?t=' + t;
+        document.getElementById('viewDesc').innerText = responseData.descripcion;
+        
+        // Actualizar metadatos (en caso de que hayan cambiado por operaciones geométricas, etc.)
+        updateMetadata(responseData.ancho, responseData.alto);
+        
+        // Actualizar aspect ratio si es necesario
+        const wrapper = document.getElementById('slider-wrapper');
+        wrapper.style.aspectRatio = `${responseData.ancho} / ${responseData.alto}`;
+        
+        // Actualizar descarga
+        document.getElementById('btn-download').href = responseData.url_procesada;
+        
+        // Mantener opacidad elegida por el slider
+        const intensity = document.getElementById('filterIntensity').value;
+        document.getElementById('viewProc').style.opacity = intensity / 100;
+      }
     }
 
     // Ajustar opacidad de la capa superior procesada (mezclador de intensidad)
@@ -728,8 +1105,14 @@
       // Alternar paneles
       document.getElementById('upload-panel').style.display = 'block';
       document.getElementById('workspace-panel').style.display = 'none';
-      document.getElementById('fileNameDisp').innerText = 'Haz clic para seleccionar o arrastrar';
+      document.getElementById('fileNameDisp').innerText = 'Haz clic para seleccionar archivo';
       document.getElementById('fileInput').value = '';
+      document.getElementById('download-name-input').value = '';
+      
+      // Resetear metadatos
+      document.getElementById('meta-resolution').innerText = '-';
+      document.getElementById('meta-width').innerText = '-';
+      document.getElementById('meta-height').innerText = '-';
       
       // Desactivar filtros en el panel lateral
       document.querySelectorAll('.filter-btn').forEach(btn => {
