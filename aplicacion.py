@@ -14,8 +14,8 @@ from filtros import (
     aplicar_canny,
     # Frecuencia
     aplicar_dft_magnitude, aplicar_dct_magnitude,
-    # Ruido (g_noise viene de GIMP_FILTERS, noise_salt_pepper de EXT_FILTERS)
-    GIMP_FILTERS, EXT_FILTERS
+    # Ruido
+    aplicar_noise_salt_pepper, aplicar_g_noise
 )
 
 aplicacion = Flask(__name__)
@@ -39,9 +39,9 @@ def aplicar_filtro_logica(img, filtro):
     # Frecuencia
     elif filtro == 'dft':       return aplicar_dft_magnitude(img)
     elif filtro == 'dct':       return aplicar_dct_magnitude(img)
-    # Ruido (resuelto via diccionarios)
-    elif filtro in GIMP_FILTERS:  return GIMP_FILTERS[filtro](img)
-    elif filtro in EXT_FILTERS:   return EXT_FILTERS[filtro](img)
+    # Ruido
+    elif filtro == 'noise_salt_pepper': return aplicar_noise_salt_pepper(img)
+    elif filtro == 'g_noise': return aplicar_g_noise(img)
     else:
         return img  # 'original' u otros: devuelve imagen sin cambios
 
